@@ -1,0 +1,44 @@
+# This test was auto-generated.
+
+name: Skeleton Tool Test
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main, dev ]
+  workflow_dispatch:
+
+jobs:
+  skeleton-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Run skeleton.py to generate test module
+        run: |
+          python3 tools/skeleton.py testmod
+
+      - name: Verify generated files
+        run: |
+          test -d src/modules/testmod/private || (echo "Missing private directory" && exit 1)
+          test -f src/modules/testmod/testmod.c || (echo "Missing module source" && exit 1)
+          test -f src/modules/testmod/CMakeLists.txt || (echo "Missing module CMakeLists" && exit 1)
+          echo "Skeleton generated successfully."
+
+      - name: Test CMake configuration
+        run: |
+          mkdir build && cd build
+          cmake ..
+          echo "CMake configuration succeeded."
+
+      - name: Clean up generated test module
+        run: |
+          rm -rf src/modules/testmod
