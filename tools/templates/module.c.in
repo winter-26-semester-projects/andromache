@@ -1,0 +1,6 @@
+#include <kernel/@MODULE_NAME@.h>
+#include "private/_@MODULE_NAME@.h"
+
+void @MODULE_NAME@_init(void) {
+    (void)sizeof(struct @MODULE_NAME@_internal);
+}

@@ -1,0 +1,8 @@
+#ifndef _@MODULE_UPPER@_PRIV_H_
+#define _@MODULE_UPPER@_PRIV_H_
+
+struct @MODULE_NAME@_internal {
+    int placeholder;
+};
+
+#endif /* _@MODULE_UPPER@_PRIV_H_ */

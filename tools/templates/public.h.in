@@ -1,0 +1,6 @@
+#ifndef _KERNEL_@MODULE_UPPER@_H_
+#define _KERNEL_@MODULE_UPPER@_H_
+
+void @MODULE_NAME@_init(void);
+
+#endif /* _KERNEL_@MODULE_UPPER@_H_ */
