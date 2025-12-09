@@ -1,0 +1,10 @@
+# text-editors
+.vscode
+.idea
+*.swp
+
+# env vars
+.env
+
+# cmake
+build/
