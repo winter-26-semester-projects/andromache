@@ -1,0 +1,3 @@
+[submodule "extern/linux"]
+	path = extern/linux
+	url = https://github.com/torvalds/linux
