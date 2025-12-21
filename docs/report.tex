@@ -1,0 +1,56 @@
+\documentclass[12pt]{article}
+
+\usepackage{ragged2e,geometry,graphicx}
+\usepackage{newpxtext,newpxmath}
+\usepackage[hidelinks]{hyperref}
+\usepackage[pages=some]{background}
+\usepackage{fancyhdr}
+\usepackage[symbol]{footmisc}
+\usepackage{tikz-cd,tikz,pgfplots,svg}
+\usepackage{indentfirst,setspace,fourier-orns,cancel,textcomp,lettrine,microtype,manfnt,relsize,fmtcount,etoolbox}
+\usepackage{amsmath,amssymb,amsthm,mathtools,physics,amsfonts,thmtools}
+\usepackage{pgfornament}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[C]{— {\thepage} —}
+\fancyhead[R]{}
+\fancyhead[L]{}
+\fancyfoot[C]{}
+\renewcommand{\headrulewidth}{0pt}
+
+\renewcommand{\thefootnote}{$^\dagger$}
+
+\newcommand{\frontitle}[1]{
+\begin{center}
+    {\Huge #1} \\
+    \vspace{2cm} 
+\end{center}
+}
+
+\newcommand{\myAbstract}[1]{
+\begin{quote}\bold{ABSTRACT}.\;\;{#1}\end{quote}
+}
+
+\newcommand{\fullentry}[3]{
+\thispagestyle{empty}
+{\begin{center}
+\section*{\huge‘‘{#1}.’’}
+\\ \vphantom{ } \\
+{\huge \\ CSE233 \\ \vphantom{ } \\ \Large Mahros M. El-Qabasy (I.D.: 223106831) \\ \vphantom{ } \\ \Large Mostafa M. Bakr (I.D.: 223100891) \\ \Large Sherif M. Haredy (I.D.: 223107334) \\ \Large Youssef B. Kaiser (I.D.: 223102042) \\ \vphantom{ } \\ Galala University, Egypt \\ \vphantom{ } \\ Prof.\ Amr Hefny \\ \vphantom{ } \\ — \\ \vphantom{ } \\ \today}
+\end{center}}
+\\ \vphantom{ } \\
+\myAbstract{#2}
+\\ \vphantom{ } \\
+{#3}
+\newpage
+}
+
+\graphicspath{ {./} }
+
+\renewcommand{\refname}{}
+
+\begin{document}
+\thispagestyle{empty}
+{\frontitle{REPORT\,.}}
+\end{document}
