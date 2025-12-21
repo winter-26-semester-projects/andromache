@@ -2,7 +2,7 @@
 #define _IPC_PRIV_H_
 
 struct ipc_internal {
-    int placeholder;
+        int placeholder;
     
 } __TASK_;
 
