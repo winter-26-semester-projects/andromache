@@ -1,4 +1,4 @@
-![andro](docs/ico/AndroL.png)
+![andro](docs/images/logo.png)
 
 # AndromacheOS
 
