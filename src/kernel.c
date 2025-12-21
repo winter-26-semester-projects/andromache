@@ -1,48 +1,47 @@
-#include "kernel/kernel.h"
-#include "config.h"
-#include "kernel/ipc.h"
-#include "kernel/child_handler.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "machine/gdt.h"
+#include "machine/idt.h"
+#include "machine/timer.h"
+#include "modules/memory.h"
+#include "modules/scheduler.h"
+#include "modules/task.h"
+#include "modules/shell.h"
 
-/* Dummy task 1 */
-void task_a(void) {
-    /* Send a message to task 1 (which will be ID 1) */
-    /* Assuming task IDs are 0 and 1 */
-    const char* msg = "Hello from A";
-    ipc_send(1, msg, 12); /* 12 is length of "Hello from A" + null terminator */
-    /* Since we don't have real yielding, this will just return and scheduler will run next */
-}
+// Forward declaration for daemon
+void daemon_start(void);
 
-/* Dummy task 2 */
-void task_b(void) {
-    int32_t sender;
-    char buffer[64];
-    if (ipc_receive(&sender, buffer, 64) == 0) {
-        /* Message received */
-        /* In a real kernel we might print it or act on it */
-        /* For now we just consume it */
-        (void)sender;
-        (void)buffer;
-    }
-}
+void kernel_main(uint32_t multiboot_magic, uint32_t multiboot_addr) {
+    (void)multiboot_magic;
+    (void)multiboot_addr;
 
-void kernel_init(void) {
-    (void) CONFIG_MAX_THREADS;
+    // 1. Initialize Machine Layer
+    gdt_init();
+    idt_init();
+    timer_init(50); // 50 Hz
 
-    ipc_init();
-    child_handler_init();
+    // 2. Initialize Memory
+    // Assuming we have some memory, e.g., starting at 2MB, size 4MB
+    memory_init(0x200000, 0x400000);
 
-    create_task(task_a);
-    create_task(task_b);
-}
+    // 3. Initialize Scheduler
+    scheduler_init(SCHED_RR);
 
-void kernel_main(void) {
-    for (;;) {
-        schedule();
-        /* If schedule returns (which it does in our simple implementation), we halt slightly or loop */
-        /* In a real preemptive kernel, interrupts would drive this. */
-        /* Here we cooperative multitask via function calls. */
+    // 4. Create Initial Tasks
+    // Shell (User interface)
+    Task* shell_task = task_create(shell_start, 1, 100);
+    if (shell_task) scheduler_add_task(shell_task);
 
-        /* Loop delay to avoid tight spin if schedule returns immediately */
-        for (volatile int i = 0; i < 10000; ++i) {}
+    // Daemon (Background process)
+    Task* daemon_task = task_create(daemon_start, 2, 200);
+    if (daemon_task) scheduler_add_task(daemon_task);
+
+    // 5. Enter infinite loop (idle task)
+    // Enable interrupts to let scheduler take over
+    __asm__ volatile("sti");
+
+    while (1) {
+        // Halt CPU until next interrupt
+        __asm__ volatile("hlt");
     }
 }

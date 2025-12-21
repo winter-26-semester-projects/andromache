@@ -22,7 +22,9 @@ stack_top:
 .type _start, @function
 _start:
 	mov $stack_top, %esp
-	call kernel_init
+	# call kernel_init
+	push %ebx
+    push %eax
 	call kernel_main
 	cli
 1:	hlt
