@@ -1,60 +1,38 @@
-cmake_minimum_required(VERSION 3.15)
-project(Andromache LANGUAGES C ASM)
+cmake_minimum_required(VERSION 3.10)
+project(AndromacheOS C ASM)
 
-set(LINUX_PATH "${CMAKE_CURRENT_SOURCE_DIR}/extern/linux" CACHE PATH "Linux Path")
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32 -ffreestanding -O2 -Wall -Wextra -fno-pie -fno-stack-protector")
+set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} -m32")
+set(CMAKE_EXE_LINKER_FLAGS "-T ${CMAKE_SOURCE_DIR}/linker.ld -m32 -nostdlib -no-pie")
 
-set(KERNEL_SOURCES
-    src/kernel.c
-    src/boot.s
-    src/libc.c
+include_directories(include)
+include_directories(extern/linux/include)
+
+# Gather source files
+file(GLOB_RECURSE SOURCES
+    "src/boot/*.s"
+    "src/machine/*.c"
+    "src/machine/*.s"
+    "src/kernel.c"
+    "src/libc.c"
+    "src/modules/scheduler/*.c"
+    "src/modules/task/*.c"
+    "src/modules/memory/*.c"
+    "src/modules/ipc/*.c"
+    "src/modules/child_handler/*.c"
+    "src/modules/signal_handler/*.c"
+    "src/modules/shell/*.c"
+    "src/modules/daemon/*.c"
 )
 
-add_executable(kernel ${KERNEL_SOURCES})
+add_executable(andromache.bin ${SOURCES})
 
-target_include_directories(kernel
-    PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${LINUX_PATH}/include
-        ${LINUX_PATH}/arch/x86/include
-        ${LINUX_PATH}/mm
-        ${LINUX_PATH}/arch/x86/kernel
+# Custom target for ISO (requires grub-mkrescue)
+add_custom_target(iso
+    COMMAND mkdir -p isodir/boot/grub
+    COMMAND cp andromache.bin isodir/boot/andromache.bin
+    COMMAND cp ${CMAKE_SOURCE_DIR}/boot/grub/grub.cfg isodir/boot/grub/grub.cfg
+    COMMAND grub-mkrescue -o andromache.iso isodir
+    DEPENDS andromache.bin
 )
-
-set(MODULES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/modules")
-
-if(EXISTS "${MODULES_DIR}")
-    file(GLOB MODULE_DIRS RELATIVE "${MODULES_DIR}" "${MODULES_DIR}/*")
-    foreach(MOD ${MODULE_DIRS})
-        if(IS_DIRECTORY "${MODULES_DIR}/${MOD}")
-            add_subdirectory("${MODULES_DIR}/${MOD}")
-            target_link_libraries(kernel PRIVATE ${MOD})
-            message(STATUS "Added module: ${MOD}")
-        endif()
-    endforeach()
-endif()
-
-set_target_properties(kernel PROPERTIES
-    C_STANDARD 11
-    C_STANDARD_REQUIRED YES
-)
-
-# Force 32-bit and no-pie for freestanding kernel
-target_compile_options(kernel PRIVATE
-    -Wall -Wextra -Wno-missing-field-initializers
-    -m32 -fno-pie
-)
-
-option(KERNEL_FREESTANDING "Compile as freestanding kernel" ON)
-if(KERNEL_FREESTANDING)
-    target_compile_options(kernel PRIVATE -ffreestanding)
-    target_link_options(kernel PRIVATE
-        -nostdlib
-        -m32
-        -no-pie
-        -Wl,--build-id=none
-        -T ${CMAKE_CURRENT_SOURCE_DIR}/linker.ld
-    )
-endif()
-
-message(STATUS "Kernel include: ${CMAKE_CURRENT_SOURCE_DIR}/include")
-message(STATUS "Linux include: ${LINUX_PATH}")
