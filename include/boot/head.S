@@ -1,35 +1,28 @@
 .set MAGIC, 0xe85250d6
 .set PROTECTION_MODE, 0
 .set HEADER_LENGTH, header_end - header_start
-.set CHECKSUM, -(MB2_MAGIC + MB2_ARCH + MB2_LENGTH)
+.set CHECKSUM, -(MAGIC + PROTECTION_MODE + HEADER_LENGTH)
 
 .section .multiboot
-align 8
+.balign 8
+header_start:
     .long MAGIC
-    .long PROTECTION_MODE                     
+    .long PROTECTION_MODE
     .long HEADER_LENGTH
     .long CHECKSUM
-
-    .word 0    
-    .word 0  
-    .long 8 
 header_end:
 
 .section .text
 .global _start
 _start:
-    mov $stack_top, %esp
-
-    push %ebx
-    push %eax
-
+    movl $stack_top, %esp
     call kernel_main
-    
     cli
-1:  hlt
-    jmp 1b
+.1:
+    hlt
+    jmp .1
 
 .section .bss
-.align 16
-    .skip 16384
+.balign 16
 stack_top:
+    .skip 16384
