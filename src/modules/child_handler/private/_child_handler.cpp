@@ -1,6 +1,14 @@
 #include <memory>
-#include <sys/wait.h>
 #include <stdexcept>
+#include "_child_handler.h"
+
+pid_t waitpid(pid_t pid, int* status, int options) {
+    (void)pid;
+    (void)status;
+    (void)options;
+
+    return -1;
+}
 
 class Child_Handler {
     /*  take child pid number and wait for it, or pass a handler to a new process */
@@ -16,7 +24,7 @@ class Child_Handler {
         if (pid_c_) {
             int status;
 
-            waitpid(*pid_c_, &status, 0);
+            waitpid(pid_c_, &status, 0);
         }
     }   
 
