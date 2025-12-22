@@ -1,7 +1,29 @@
-SECTIONS {
+ENTRY(_start)
+
+SECTIONS
+{
     . = 1M;
-    .text : {
+    __kernel_start = .;
+
+    .text ALIGN(4K) : {
         KEEP(*(.multiboot))
-        *(.text)
+        *(.text*)
     }
+
+    .rodata ALIGN(4K) : {
+        *(.rodata*)
+    }
+
+    .data ALIGN(4K) : {
+        *(.data*)
+    }
+
+    .bss ALIGN(4K) : {
+        __bss_start = .;
+        *(.bss*)
+        *(COMMON)
+        __bss_end = .;
+    }
+
+    __kernel_end = .;
 }
