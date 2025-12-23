@@ -1,0 +1,71 @@
+# This file was auto-generated.
+
+name: Build andromache Test
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main, dev ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    container:
+      image: debian:bookworm
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          apt-get update
+          apt-get install -y \
+            build-essential \
+            cmake \
+            gcc-multilib \
+            grub-common \
+            grub-pc-bin \
+            xorriso \
+            mtools \
+            libisoburn1
+
+      - name: Build Kernel
+        run: |
+          mkdir -p build
+          cd build
+          cmake ..
+          make
+          echo "Build successful."
+
+      - name: Prepare ISO directory
+        run: |
+          mkdir -p isodir/boot/grub/
+          cp build/kernel.elf isodir/boot/
+          cp include/boot/grub.cfg isodir/boot/grub/grub.cfg
+          echo "GRUB Config copied."
+
+      - name: Create ISO
+        run: |
+          grub-mkrescue -o andromache.iso isodir
+          echo "ISO created."
+
+      - name: Verify Multiboot2 Header
+        run: |
+          if grub-file --is-x86-multiboot2 build/kernel.elf; then
+            echo "✅ Multiboot2 header verified at $(date)"
+          else
+            echo "❌ ERROR: Multiboot2 header not found!"
+            exit 1
+          fi
+
+      - name: Save Full Dump
+        run: readelf -a build/kernel.elf
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: andromache-iso
+          path: andromache.iso
