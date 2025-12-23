@@ -49,9 +49,12 @@ target_compile_options(ipc PRIVATE
 target_link_options(kernel.elf PRIVATE
     -m32
     -nostdlib
+    -no-pie
+    -static
     -ffreestanding
     -T ${CMAKE_CURRENT_SOURCE_DIR}/include/boot/kernel.ld
     -Wl,-Map=kernel.map
+    -Wl,--build-id=none
 )
 
 set_target_properties(kernel.elf PROPERTIES
