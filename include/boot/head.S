@@ -1,6 +1,6 @@
 .set MAGIC, 0xe85250d6
 .set PROTECTION_MODE, 0
-.set HEADER_LENGTH, header_end - header_start
+.set HEADER_LENGTH, 32
 .set CHECKSUM, -(MAGIC + PROTECTION_MODE + HEADER_LENGTH)
 
 .section .multiboot
@@ -10,6 +10,16 @@ header_start:
     .long PROTECTION_MODE
     .long HEADER_LENGTH
     .long CHECKSUM
+
+    .balign 8
+    .short 1
+    .short 0
+    .long 8
+
+    .balign 8
+    .short 0
+    .short 0
+    .long 8
 header_end:
 
 .section .text
