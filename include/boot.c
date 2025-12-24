@@ -43,12 +43,12 @@ void early_kernel_init() {
         if (hdr->flags & 0x1) {
 
                 early_serial_init(UART_PORT_COM1);
-                serial_write(UART_PORT_COM1, "ANDROMACHE Boot: Header Validated.\n");
+                serial_write(UART_PORT_COM1, "ANDROMACHE Boot: Header Validated.\r\n");
         }
 
         if (hdr->hgr_mem < 0x1000) {
 
-                serial_write(UART_PORT_COM1, "ANDROMACHE Boot: Insufficient Memory.\n");
+                serial_write(UART_PORT_COM1, "ANDROMACHE Boot: Insufficient Memory.\r\n");
 
                 /* It again, *must* do nothing. */
                 for(;;) {
