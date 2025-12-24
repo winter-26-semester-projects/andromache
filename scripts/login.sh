@@ -9,6 +9,20 @@ set -e
 cd $base_dir &&
 source .env
 
+while [[ "$#" -gt 0 ]]; do
+    case "$1" in
+        -s|--shell)
+                shift 1
+
+                ssh -t -o StrictHostKeyChecking=no $VM_USER@$VM_HOST -p $VM_PORT
+                ;;
+        *)
+                echo "Unknown option: $1"
+                exit 1
+                ;;
+    esac
+done
+
 if command -v pacman &> /dev/null ; then
         _cmd="pacman -Q 'expect'"
 else
