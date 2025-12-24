@@ -10,7 +10,7 @@ set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} -m32")
 
 function(get_crt_files name out)
     execute_process(
-        COMMAND ${CMAKE_C_COMPILER} ${CMAKE_C_FLAGS} -print-file-name=${name}
+        COMMAND ${CMAKE_C_COMPILER} -m32 -print-file-name=${name}
         OUTPUT_VARIABLE _out
         OUTPUT_STRIP_TRAILING_WHITESPACE
     )
@@ -32,59 +32,13 @@ add_library(kernel_objs OBJECT
     src/init_task.c
 )
 
-set_source_files_properties(include/boot/head.S PROPERTIES LANGUAGE ASM)
-
-target_include_directories(kernel_objs
-    PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-)
-
-target_compile_options(kernel_objs
-    PRIVATE
-        -ffreestanding
-        -fno-stack-protector
-        -fno-pic
-        -m32
-)
+target_include_directories(kernel_objs PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_compile_options(kernel_objs PRIVATE -ffreestanding -fno-stack-protector -fno-pic -m32)
 
 add_subdirectory(src/modules/ipc)
 
 add_executable(kernel.elf)
-
-target_compile_options(crt_i PRIVATE
-    $<$<COMPILE_LANGUAGE:ASM>:-m32>
-)
-target_compile_options(crt_n PRIVATE
-    $<$<COMPILE_LANGUAGE:ASM>:-m32>
-)
-
-target_link_options(kernel.elf PRIVATE 
-    "BEFORE" 
-    "$<TARGET_OBJECTS:crt_i>"
-    "${CRTBEGIN_PATH}"
-)
-
-target_link_options(kernel.elf PRIVATE 
-    "${CRTEND_PATH}"
-    "$<TARGET_OBJECTS:crt_n>"
-)
-
-target_link_libraries(kernel.elf
-    PRIVATE
-        kernel_objs
-        ipc
-)
-
 target_compile_definitions(kernel.elf PRIVATE __is_kernel)
-
-target_compile_options(ipc PRIVATE
-    -ffreestanding
-    -fno-stack-protector
-    -fno-pic
-    -fno-exceptions
-    -fno-rtti
-    -m32
-)
 
 target_link_options(kernel.elf PRIVATE
     -m32
@@ -99,10 +53,16 @@ target_link_options(kernel.elf PRIVATE
     "${CRTBEGIN_PATH}"
 )
 
-target_link_options(kernel.elf PRIVATE 
-    "AFTER"
-    "${CRTEND_PATH}"
-    "$<TARGET_OBJECTS:crt_n>"
+target_link_libraries(kernel.elf
+    PRIVATE
+        kernel_objs
+        ipc
+        "${CRTEND_PATH}"
+        "$<TARGET_OBJECTS:crt_n>"
+)
+
+target_compile_options(ipc PRIVATE
+    -ffreestanding -fno-stack-protector -fno-pic -fno-exceptions -fno-rtti -m32
 )
 
 set_target_properties(kernel.elf PROPERTIES
