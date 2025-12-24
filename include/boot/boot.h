@@ -7,7 +7,7 @@
 
 struct start {
         uint32_t magic;
-        uint32_t kernel_entry;
+        uintptr_t kernel_entry;
         uint32_t flags;
         uint32_t checksum;
         uint32_t hgr_mem;
