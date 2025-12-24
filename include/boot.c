@@ -20,7 +20,10 @@ void early_kernel_init() {
         struct start *hdr = (struct start *)((uintptr_t)&header_t - HEADER_OFFSET);
 
         early_serial_init(0x3F8);
-        serial_write(0x3F8, "ANDROMACHE: test...\r\n");
+        while(1) {
+                serial_write(0x3F8, "STAYING IN EARLY INIT\r\n");
+                for(int i = 0; i < 1000000; i++) __asm__("nop"); // Small delay
+        }
 
         // if (hdr->magic != KERNEL_MAGIC) {
 
