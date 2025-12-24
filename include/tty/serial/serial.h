@@ -16,3 +16,4 @@
 
 void early_serial_init(uint16_t);
 void serial_putc(uint16_t, char);
+void serial_write(uint16_t port, const char* str);

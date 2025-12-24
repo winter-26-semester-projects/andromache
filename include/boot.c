@@ -32,12 +32,12 @@ void early_kernel_init() {
         if (hdr->flags & 0x1) {
 
                 early_serial_init(0x3F8);
-                early_serial_print("ANDROMACHE Boot: Header Validated.\n");
+                serial_write(0x3F8, "ANDROMACHE Boot: Header Validated.\n");
         }
 
         if (hdr->hgr_mem < 0x1000) {
 
-                early_serial_print("ANDROMACHE Boot: Insufficient Memory.\n");
+                serial_write(0x3F8, "ANDROMACHE Boot: Insufficient Memory.\n");
 
                 /* It again, *must* do nothing. */
                 for(;;) {
