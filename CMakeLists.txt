@@ -6,6 +6,8 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 
+set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} -m32")
+
 function(get_crt_files name out)
     execute_process(
         COMMAND ${CMAKE_C_COMPILER} ${CMAKE_C_FLAGS} -print-file-name=${name}
@@ -19,7 +21,10 @@ get_crt_files(crtbegin.o CRTBEGIN_PATH)
 get_crt_files(crtend.o CRTEND_PATH)
 
 add_library(crt_i OBJECT include/crti.S)
+target_compile_options(crt_i PRIVATE -m32)
+
 add_library(crt_n OBJECT include/crtn.S)
+target_compile_options(crt_n PRIVATE -m32)
 
 add_library(kernel_objs OBJECT
     include/boot/head.S
@@ -90,6 +95,14 @@ target_link_options(kernel.elf PRIVATE
     -T ${CMAKE_CURRENT_SOURCE_DIR}/include/boot/kernel.ld
     -Wl,-Map=kernel.map
     -Wl,--build-id=none
+    "$<TARGET_OBJECTS:crt_i>"
+    "${CRTBEGIN_PATH}"
+)
+
+target_link_options(kernel.elf PRIVATE 
+    "AFTER"
+    "${CRTEND_PATH}"
+    "$<TARGET_OBJECTS:crt_n>"
 )
 
 set_target_properties(kernel.elf PROPERTIES
