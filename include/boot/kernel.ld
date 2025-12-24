@@ -1,11 +1,14 @@
 ENTRY(_start)
 
+LOGIC_BASE = 0xC0000000;
+PHYS_BASE = 1M;
+
 SECTIONS
 {
-    . = 1M;
+    . = LOGIC_BASE + PHYS_BASE;
     __kernel_start = .;
 
-    .text ALIGN(4K) : {
+    .text ALIGN(4K) : AT(ADDR(.text) - LOGIC_BASE) {
         KEEP(*(.multiboot))
         *(.text*)
     }

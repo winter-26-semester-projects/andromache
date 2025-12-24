@@ -26,7 +26,11 @@ header_end:
 .global _start
 _start:
     movl $stack_top, %esp
-    call kernel_main
+    subl $0xC0000000, %esp
+
+    movl $early_kernel_init, %eax
+    subl $0xC0000000, %esp
+    call *%eax
     cli
 .1:
     hlt
