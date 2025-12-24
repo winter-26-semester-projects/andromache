@@ -47,11 +47,10 @@ add_subdirectory(src/modules/ipc)
 add_executable(kernel.elf)
 
 target_compile_options(crt_i PRIVATE
-    -m32
+    $<$<COMPILE_LANGUAGE:ASM>:-m32>
 )
-
 target_compile_options(crt_n PRIVATE
-    -m32
+    $<$<COMPILE_LANGUAGE:ASM>:-m32>
 )
 
 target_link_options(kernel.elf PRIVATE 
