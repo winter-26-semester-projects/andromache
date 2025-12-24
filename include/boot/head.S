@@ -29,7 +29,7 @@ _start:
     subl $0xC0000000, %esp
 
     movl $early_kernel_init, %eax
-    subl $0xC0000000, %esp
+    subl $0xC0000000, %eax
     call *%eax
     cli
 .1:
