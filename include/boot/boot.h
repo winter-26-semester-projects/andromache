@@ -14,7 +14,7 @@ struct start {
         uint32_t cmdline;
 } __attribute__((packed));
 
-void early_kernel_init(void);
+int early_kernel_init(struct start*);
 
 void early_kernel_main(void);
 

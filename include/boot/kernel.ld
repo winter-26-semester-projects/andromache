@@ -28,5 +28,7 @@ SECTIONS
         __bss_end = .;
     }
 
+    _header_checksum = 0x414E4452 + _start + 0x1;
+
     __kernel_end = .;
 }

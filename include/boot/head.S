@@ -28,7 +28,7 @@ _start:
     movl $stack_top, %esp
     subl $0xC0000000, %esp
 
-    movl $early_kernel_init, %eax
+    movl $early_kernel_main, %eax
     subl $0xC0000000, %eax
     call *%eax
     cli
