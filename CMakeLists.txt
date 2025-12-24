@@ -28,6 +28,8 @@ target_compile_options(crt_n PRIVATE -m32)
 
 add_library(kernel_objs OBJECT
     include/boot/head.S
+    include/tty/serial/serial.c
+    include/boot.c
     src/kernel.c
     src/init_task.c
 )
