@@ -13,15 +13,15 @@ SECTIONS
         *(.text*)
     }
 
-    .rodata ALIGN(4K) : {
+    .rodata ALIGN(4K) : AT(ADDR(.rodata) - LOGIC_BASE) {
         *(.rodata*)
     }
 
-    .data ALIGN(4K) : {
+    .data ALIGN(4K) : AT(ADDR(.data) - LOGIC_BASE) {
         *(.data*)
     }
 
-    .bss ALIGN(4K) : {
+    .bss ALIGN(4K) : AT(ADDR(.bss) - LOGIC_BASE) {
         __bss_start = .;
         *(.bss*)
         *(COMMON)
