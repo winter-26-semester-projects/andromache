@@ -6,6 +6,21 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 
+function(get_crt_files name out)
+    execute_process(
+        COMMAND ${CMAKE_C_COMPILER} ${CMAKE_C_FLAGS} -print-file-name=${name}
+        OUTPUT_VARIABLE _out
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    set(${out} "${_out}" PARENT_SCOPE)
+endfunction()
+
+get_crt_files(crtbegin.o CRTBEGIN_PATH)
+get_crt_files(crtend.o CRTEND_PATH)
+
+add_library(crt_i OBJECT include/crti.S)
+add_library(crt_n OBJECT include/crtn.S)
+
 add_library(kernel_objs OBJECT
     include/boot/head.S
     src/kernel.c
@@ -31,11 +46,25 @@ add_subdirectory(src/modules/ipc)
 
 add_executable(kernel.elf)
 
+target_link_options(kernel.elf PRIVATE 
+    "BEFORE" 
+    "$<TARGET_OBJECTS:crt_i>"
+    "${CRTBEGIN_PATH}"
+)
+
+target_link_options(kernel.elf PRIVATE 
+    "AFTER"
+    "${CRTEND_PATH}"
+    "$<TARGET_OBJECTS:crt_n>"
+)
+
 target_link_libraries(kernel.elf
     PRIVATE
         kernel_objs
         ipc
 )
+
+target_compile_definitions(kernel.elf PRIVATE __is_kernel)
 
 target_compile_options(ipc PRIVATE
     -ffreestanding
