@@ -60,7 +60,6 @@ target_link_options(kernel.elf PRIVATE
 )
 
 target_link_options(kernel.elf PRIVATE 
-    "AFTER"
     "${CRTEND_PATH}"
     "$<TARGET_OBJECTS:crt_n>"
 )
