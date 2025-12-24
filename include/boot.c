@@ -3,8 +3,6 @@
 
 #define HEADER_OFFSET 0xC0000000
 
-extern struct start header_t;
-
 extern void _start(void);
 
 struct start header_t = {
@@ -21,41 +19,44 @@ void early_kernel_init() {
         /* Grabbing header_t entry point */
         struct start *hdr = (struct start *)((uintptr_t)&header_t - HEADER_OFFSET);
 
-        if (hdr->magic != KERNEL_MAGIC) {
+        early_serial_init(0x3F8);
+        serial_write(0x3F8, "ANDROMACHE: test...\r\n");
 
-                /* It *must* do nothing. */
-                for (;;) {
+        // if (hdr->magic != KERNEL_MAGIC) {
 
-                        __asm__("hlt");
-                }
-        }
+        //         /* It *must* do nothing. */
+        //         for (;;) {
 
-        uint32_t chk = hdr->magic + (uint32_t)hdr->kernel_entry + hdr->flags;
-        if (chk != hdr->checksum) {
+        //                 __asm__("hlt");
+        //         }
+        // }
 
-                /* It again, *must* do nothing. */
-                for (;;) {
+        // uint32_t chk = hdr->magic + (uint32_t)hdr->kernel_entry + hdr->flags;
+        // if (chk != hdr->checksum) {
 
-                        __asm__("hlt");
-                }
-        }
+        //         /* It again, *must* do nothing. */
+        //         for (;;) {
 
-        if (hdr->flags & 0x1) {
+        //                 __asm__("hlt");
+        //         }
+        // }
 
-                early_serial_init(UART_PORT_COM1);
-                serial_write(UART_PORT_COM1, "ANDROMACHE Boot: Header Validated.\r\n");
-        }
+        // if (hdr->flags & 0x1) {
 
-        if (hdr->hgr_mem < 0x1000) {
+        //         early_serial_init(UART_PORT_COM1);
+        //         serial_write(UART_PORT_COM1, "ANDROMACHE Boot: Header Validated.\r\n");
+        // }
 
-                serial_write(UART_PORT_COM1, "ANDROMACHE Boot: Insufficient Memory.\r\n");
+        // if (hdr->hgr_mem < 0x1000) {
 
-                /* It again, *must* do nothing. */
-                for(;;) {
+        //         serial_write(UART_PORT_COM1, "ANDROMACHE Boot: Insufficient Memory.\r\n");
 
-                        __asm__("hlt");
-                }
-        }
+        //         /* It again, *must* do nothing. */
+        //         for(;;) {
+
+        //                 __asm__("hlt");
+        //         }
+        // }
 
         uint32_t entr = (uint32_t)hdr->kernel_entry - HEADER_OFFSET;
 
