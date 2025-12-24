@@ -21,9 +21,6 @@ void early_kernel_init() {
         /* Grabbing header_t entry point */
         struct start *hdr = (struct start *)((uintptr_t)&header_t - HEADER_OFFSET);
 
-        early_serial_init(UART_PORT_COM1);
-        serial_write(UART_PORT_COM1, PHYS((char*)"ANDROMACHE Boot: Header Validated.\r\n"));
-
         if (hdr->magic != KERNEL_MAGIC) {
 
                 /* It *must* do nothing. */
