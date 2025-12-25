@@ -1,13 +1,43 @@
 #include <kernel/ipc.h>
 #include "private/_ipc.h"
-#include <kernel/time.h> // Hypothetical time management API
+#include <stdlib.h> // For memory allocation
+#include <string.h> // For memset
+
+#define MAX_ENDPOINTS 128
+
+static struct ipc_endpoint endpoint_table[MAX_ENDPOINTS];
+
+/* Placeholder for time management */
+static uint32_t kernel_get_time_ms(void)
+{
+    // Replace with actual time management logic if available
+    return 0;
+}
+
+static void kernel_yield(void)
+{
+    // Replace with actual yield logic if available
+}
+
+/* Retrieve endpoint by ID */
+static struct ipc_endpoint *get_endpoint_by_id(ipc_endpoint_t id)
+{
+    for (size_t i = 0; i < MAX_ENDPOINTS; ++i)
+    {
+        if (endpoint_table[i].id == id && !endpoint_table[i].closed)
+        {
+            return &endpoint_table[i];
+        }
+    }
+    return NULL;
+}
 
 /*
  * Initialize the IPC subsystem.
  */
 void ipc_init(void)
 {
-    // Initialization logic for IPC subsystem
+    memset(endpoint_table, 0, sizeof(endpoint_table));
 }
 
 /*
@@ -15,12 +45,19 @@ void ipc_init(void)
  */
 ipc_endpoint_t ipc_endpoint_create(void)
 {
-    static ipc_endpoint_t next_id = 1; // Start endpoint IDs from 1
-    ipc_endpoint_t new_endpoint = next_id++;
-
-    // Allocate and initialize endpoint resources here
-
-    return new_endpoint;
+    for (size_t i = 0; i < MAX_ENDPOINTS; ++i)
+    {
+        if (endpoint_table[i].id == 0)
+        {
+            endpoint_table[i].id = i + 1; // Assign a unique ID
+            endpoint_table[i].queue_head = NULL;
+            endpoint_table[i].queue_tail = NULL;
+            endpoint_table[i].queue_depth = 0;
+            endpoint_table[i].closed = 0;
+            return endpoint_table[i].id;
+        }
+    }
+    return 0; // No available slots
 }
 
 /*
@@ -28,8 +65,22 @@ ipc_endpoint_t ipc_endpoint_create(void)
  */
 ipc_status_t ipc_endpoint_destroy(ipc_endpoint_t endpoint)
 {
-    // Free resources associated with the endpoint
+    struct ipc_endpoint *ep = get_endpoint_by_id(endpoint);
+    if (!ep)
+    {
+        return IPC_ERR_INVALID;
+    }
 
+    // Free all queued messages
+    struct ipc_message_internal *msg = ep->queue_head;
+    while (msg)
+    {
+        struct ipc_message_internal *next = msg->next;
+        free(msg);
+        msg = next;
+    }
+
+    memset(ep, 0, sizeof(*ep)); // Clear the endpoint
     return IPC_OK;
 }
 
@@ -79,13 +130,18 @@ ipc_status_t ipc_send(
         return IPC_ERR_INVALID;
     }
 
-    struct ipc_endpoint *ep = /* Retrieve endpoint by ID */;
+    struct ipc_endpoint *ep = get_endpoint_by_id(endpoint);
     if (!ep || ep->closed)
     {
         return IPC_ERR_INVALID;
     }
 
-    struct ipc_message_internal *new_message = /* Allocate memory for new message */;
+    struct ipc_message_internal *new_message = malloc(sizeof(struct ipc_message_internal));
+    if (!new_message)
+    {
+        return IPC_ERR_NO_MEMORY;
+    }
+
     new_message->data = (void *)message->data;
     new_message->length = message->length;
     new_message->priority = message->priority;
@@ -109,7 +165,7 @@ ipc_status_t ipc_receive(
         return IPC_ERR_INVALID;
     }
 
-    struct ipc_endpoint *ep = /* Retrieve endpoint by ID */;
+    struct ipc_endpoint *ep = get_endpoint_by_id(endpoint);
     if (!ep || ep->closed || !ep->queue_head)
     {
         return IPC_ERR_WOULD_BLOCK;
@@ -126,7 +182,7 @@ ipc_status_t ipc_receive(
     message->length = msg->length;
     message->priority = msg->priority;
 
-    /* Free memory for msg */
+    free(msg);
 
     return IPC_OK;
 }
@@ -151,9 +207,16 @@ ipc_status_t ipc_broadcast(
         ipc_status_t result = ipc_send(endpoints[i], message, 0);
         if (result != IPC_OK)
         {
-            status = result; // Return the last error encountered
+            status = result;
         }
     }
 
     return status;
 }
+
+
+
+
+/**
+ * Created with &hearts; by 0xQ4B4S
+ */

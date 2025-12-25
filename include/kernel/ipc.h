@@ -58,3 +58,10 @@ ipc_status_t ipc_receive(ipc_endpoint_t endpoint, struct ipc_message *message, u
 ipc_status_t ipc_broadcast(const ipc_endpoint_t *endpoints, size_t count, const struct ipc_message *message);
 
 #endif /* _KERNEL_IPC_H_ */
+
+
+
+
+/**
+ * Created with &hearts; by 0xQ4B4S
+ */
