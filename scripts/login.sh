@@ -9,11 +9,14 @@ set -e
 cd $base_dir &&
 source .env
 
+skip=1
+
 while [[ "$#" -gt 0 ]]; do
     case "$1" in
         -s|--shell)
                 shift 1
 
+                skip=0
                 ssh -t -o StrictHostKeyChecking=no $VM_USER@$VM_HOST -p $VM_PORT
                 ;;
         *)
@@ -22,6 +25,10 @@ while [[ "$#" -gt 0 ]]; do
                 ;;
     esac
 done
+
+if $skip ; then
+        exit 0
+fi
 
 if command -v pacman &> /dev/null ; then
         _cmd="pacman -Q 'expect'"
