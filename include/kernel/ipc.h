@@ -23,7 +23,8 @@ typedef enum
     IPC_ERR_NO_MEMORY,
     IPC_ERR_PERMISSION,
     IPC_ERR_WOULD_BLOCK,
-    IPC_ERR_CLOSED
+    IPC_ERR_CLOSED,
+    IPC_ERR_TIMEOUT
 } ipc_status_t;
 
 /*
@@ -31,5 +32,11 @@ typedef enum
  */
 #define IPC_MAX_MESSAGE_SIZE 4096 // 4 KiB
 #define IPC_MAX_QUEUE_DEPTH 64    // 64 messages
+
+/*
+ * IPC function prototypes.
+ */
+ipc_status_t ipc_send(ipc_endpoint_t endpoint, const struct ipc_message *message, uint32_t timeout_ms);
+ipc_status_t ipc_receive(ipc_endpoint_t endpoint, struct ipc_message *message, uint32_t timeout_ms);
 
 #endif /* _KERNEL_IPC_H_ */
