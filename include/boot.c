@@ -1,14 +1,13 @@
 #include "boot/boot.h"
 #include "tty/serial/serial.h"
 
-#define HEADER_OFFSET 0xC0000000U
 extern uint8_t _header_checksum;
 
-extern void _start(void);
+extern void kernel_main(void);
 
 struct start header_t = {
     .magic = KERNEL_MAGIC,                              // ‘‘ANDR’’ in ASCII
-    .kernel_entry = (uintptr_t)_start,                  // kernel entry point
+    .kernel_entry = (uintptr_t)kernel_main,             // kernel entry point
     .flags = 0x00000001,                                // ‘0’ to enable tty, ‘1’ to disable
     .checksum = (uint32_t)(uintptr_t)&_header_checksum, // magic number + kernel entry addr + flag
     .hgr_mem = 0x1000,
@@ -20,34 +19,38 @@ struct start header_t = {
 __attribute__((aligned(4096))) uint32_t boot_page_directory[1024];
 __attribute__((aligned(4096))) uint32_t boot_page_table1[1024];
 
-void setup_handoff_paging() {
-    uint32_t *pd = PHYS(boot_page_directory);
-    uint32_t *pt = PHYS(boot_page_table1);
+void enable_paging() 
+{
+        uint32_t *pd = PHYS((uint32_t*)boot_page_directory);
+        uint32_t *pt = PHYS((uint32_t*)boot_page_table1);
 
-    uintptr_t phys_pd = (uintptr_t)pd;
-    uintptr_t phys_pt = (uintptr_t)pt;
+        uintptr_t phys_pd = (uintptr_t)pd;
+        uintptr_t phys_pt = (uintptr_t)pt;
 
-    // Identity map 0-4MB
-    pd[0] = phys_pt | 0x3;
+        for (int i = 0; i < 1024; i++) {
+                pd[i] = 0;
+                pt[i] = 0;
+        }
 
-    // Map Higher Half (0xC0000000 / 4MB = index 768)
-    pd[768] = phys_pt | 0x3; 
+        pd[0]   = phys_pt | 0x3;
+        pd[768] = phys_pt | 0x3; 
 
-    // Fill PT physically
-    for (int i = 0; i < 1024; i++) {
-        pt[i] = (i * 4096) | 0x3;
-    }
+        for (int i = 0; i < 1024; i++) {
 
-    __asm__ volatile("mov %0, %%cr3" : : "r"(phys_pd));
+                pt[i] = (i * 4096) | 0x3;
+        }
 
-    // Enable Paging (Set PG bit in CR0)
-    uint32_t cr0;
-    __asm__ volatile("mov %%cr0, %0" : "=r"(cr0));
-    cr0 |= 0x80000000;
-    __asm__ volatile("mov %0, %%cr0" : : "r"(cr0));
+        __asm__ volatile("mov %0, %%cr3" : : "r"(phys_pd));
+
+        uint32_t cr0;
+        __asm__ volatile("mov %%cr0, %0" : "=r"(cr0));
+
+        cr0 |= 0x80000000;
+        __asm__ volatile("mov %0, %%cr0" : : "r"(cr0));
 }
 
-int early_kernel_init(struct start *hdr) {
+int early_kernel_init(struct start *hdr) 
+{
 
         /* Checks if the loaded kernel header matches after boot */
         
@@ -61,15 +64,15 @@ int early_kernel_init(struct start *hdr) {
         return 1;
 }
 
-void early_kernel_main() {
-
+void early_kernel_main() 
+{
         struct start *hdr = (struct start *)((uintptr_t)&header_t - HEADER_OFFSET);
 
         if (!early_kernel_init(hdr)) {
 
                 for (;;) {
 
-                        __asm__("hlt"); 
+                        __asm__("hlt");
                 }
         }
 
@@ -80,13 +83,16 @@ void early_kernel_main() {
                 serial_write(UART_PORT_COM1, PHYS((char*)"ANDROMACHE Boot: Header validated.\r\n"));
         }
 
-        setup_handoff_paging();
-        
-        uintptr_t entr = (uintptr_t)hdr->kernel_entry;
-        
-        void (*kernel_main)(void) = (void (*)(void))entr;
-        
-        serial_write(UART_PORT_COM1, PHYS((char*)"ANDROMACHE: Jumping to Higher Half (0xC0000000)...\r\n"));
-        kernel_main();
+        uintptr_t entr = (uintptr_t)kernel_main;
+
+        enable_paging();
+
+        __asm__ volatile ("addl %0, %%esp" : : "i"(0xC0000000));
+
+        __asm__ volatile (
+                "push %0 \n\t"
+                "ret"
+                : : "r"(entr) : "memory"
+        );
 }
 

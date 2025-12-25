@@ -3,6 +3,8 @@
 
 #include<stdint.h>
 
+#define HEADER_OFFSET 0xC0000000U
+
 #define KERNEL_MAGIC 0x414e4452
 
 struct start {
