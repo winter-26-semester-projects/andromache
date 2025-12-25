@@ -38,5 +38,6 @@ typedef enum
  */
 ipc_status_t ipc_send(ipc_endpoint_t endpoint, const struct ipc_message *message, uint32_t timeout_ms);
 ipc_status_t ipc_receive(ipc_endpoint_t endpoint, struct ipc_message *message, uint32_t timeout_ms);
+ipc_status_t ipc_broadcast(const ipc_endpoint_t *endpoints, size_t count, const struct ipc_message *message);
 
 #endif /* _KERNEL_IPC_H_ */

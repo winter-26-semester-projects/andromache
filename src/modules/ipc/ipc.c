@@ -94,3 +94,30 @@ ipc_status_t ipc_receive(
 
     return IPC_ERR_TIMEOUT;
 }
+
+/*
+ * Broadcast a message to multiple IPC endpoints.
+ */
+ipc_status_t ipc_broadcast(
+    const ipc_endpoint_t *endpoints,
+    size_t count,
+    const struct ipc_message *message)
+{
+    if (!endpoints || !message || !message->data || message->length > IPC_MAX_MESSAGE_SIZE)
+    {
+        return IPC_ERR_INVALID;
+    }
+
+    ipc_status_t status = IPC_OK;
+
+    for (size_t i = 0; i < count; ++i)
+    {
+        ipc_status_t result = ipc_send(endpoints[i], message, 0);
+        if (result != IPC_OK)
+        {
+            status = result; // Return the last error encountered
+        }
+    }
+
+    return status;
+}
