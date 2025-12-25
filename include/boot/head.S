@@ -28,6 +28,10 @@ _start:
     movl $stack_top, %esp
     subl $0xC0000000, %esp
 
+    movl $_init, %eax
+    subl $0xC0000000, %eax
+    call *%eax
+
     movl $early_kernel_main, %eax
     subl $0xC0000000, %eax
     call *%eax
