@@ -10,12 +10,13 @@
 
 /*
  * Internal IPC message representation.
- * The payload buffer is owned by the kernel.
  */
-struct ipc_message
+struct ipc_message_internal
 {
     void *data;
     size_t length;
+    uint8_t priority;
+    struct ipc_message_internal *next;
 };
 
 /*
@@ -25,8 +26,8 @@ struct ipc_endpoint
 {
     pid_t owner;
     ipc_endpoint_t id;
-    struct ipc_message *queue_head;
-    struct ipc_message *queue_tail;
+    struct ipc_message_internal *queue_head;
+    struct ipc_message_internal *queue_tail;
     size_t queue_depth;
     uint32_t closed; // bit mask
 };

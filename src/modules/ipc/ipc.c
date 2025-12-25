@@ -34,7 +34,40 @@ ipc_status_t ipc_endpoint_destroy(ipc_endpoint_t endpoint)
 }
 
 /*
- * Send a message to an IPC endpoint with a timeout.
+ * Insert a message into the endpoint's queue based on priority.
+ */
+static void ipc_insert_message(struct ipc_endpoint *endpoint, struct ipc_message_internal *new_message)
+{
+    if (!endpoint->queue_head || new_message->priority > endpoint->queue_head->priority)
+    {
+        // Insert at the head of the queue
+        new_message->next = endpoint->queue_head;
+        endpoint->queue_head = new_message;
+        if (!endpoint->queue_tail)
+        {
+            endpoint->queue_tail = new_message;
+        }
+        return;
+    }
+
+    // Find the correct position based on priority
+    struct ipc_message_internal *current = endpoint->queue_head;
+    while (current->next && current->next->priority >= new_message->priority)
+    {
+        current = current->next;
+    }
+
+    // Insert the message
+    new_message->next = current->next;
+    current->next = new_message;
+    if (!new_message->next)
+    {
+        endpoint->queue_tail = new_message;
+    }
+}
+
+/*
+ * Send a message to an IPC endpoint with priority.
  */
 ipc_status_t ipc_send(
     ipc_endpoint_t endpoint,
@@ -46,26 +79,25 @@ ipc_status_t ipc_send(
         return IPC_ERR_INVALID;
     }
 
-    uint32_t start_time = kernel_get_time_ms();
-
-    while (kernel_get_time_ms() - start_time < timeout_ms)
+    struct ipc_endpoint *ep = /* Retrieve endpoint by ID */;
+    if (!ep || ep->closed)
     {
-        // Attempt to add message to the endpoint's queue
-        if (/* queue has space */)
-        {
-            // Add message to queue
-            return IPC_OK;
-        }
-
-        // Yield or wait briefly before retrying
-        kernel_yield();
+        return IPC_ERR_INVALID;
     }
 
-    return IPC_ERR_TIMEOUT;
+    struct ipc_message_internal *new_message = /* Allocate memory for new message */;
+    new_message->data = (void *)message->data;
+    new_message->length = message->length;
+    new_message->priority = message->priority;
+    new_message->next = NULL;
+
+    ipc_insert_message(ep, new_message);
+
+    return IPC_OK;
 }
 
 /*
- * Receive a message from an IPC endpoint with a timeout.
+ * Receive a message from an IPC endpoint.
  */
 ipc_status_t ipc_receive(
     ipc_endpoint_t endpoint,
@@ -77,22 +109,26 @@ ipc_status_t ipc_receive(
         return IPC_ERR_INVALID;
     }
 
-    uint32_t start_time = kernel_get_time_ms();
-
-    while (kernel_get_time_ms() - start_time < timeout_ms)
+    struct ipc_endpoint *ep = /* Retrieve endpoint by ID */;
+    if (!ep || ep->closed || !ep->queue_head)
     {
-        // Attempt to retrieve message from the endpoint's queue
-        if (/* queue has messages */)
-        {
-            // Retrieve message from queue
-            return IPC_OK;
-        }
-
-        // Yield or wait briefly before retrying
-        kernel_yield();
+        return IPC_ERR_WOULD_BLOCK;
     }
 
-    return IPC_ERR_TIMEOUT;
+    struct ipc_message_internal *msg = ep->queue_head;
+    ep->queue_head = msg->next;
+    if (!ep->queue_head)
+    {
+        ep->queue_tail = NULL;
+    }
+
+    message->data = msg->data;
+    message->length = msg->length;
+    message->priority = msg->priority;
+
+    /* Free memory for msg */
+
+    return IPC_OK;
 }
 
 /*

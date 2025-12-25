@@ -28,6 +28,23 @@ typedef enum
 } ipc_status_t;
 
 /*
+ * IPC message priorities.
+ */
+#define IPC_PRIORITY_LOW 0
+#define IPC_PRIORITY_NORMAL 1
+#define IPC_PRIORITY_HIGH 2
+
+/*
+ * IPC message descriptor.
+ */
+struct ipc_message
+{
+    const void *data;
+    size_t length;
+    uint8_t priority; // Message priority
+};
+
+/*
  * IPC operation flags.
  */
 #define IPC_MAX_MESSAGE_SIZE 4096 // 4 KiB
