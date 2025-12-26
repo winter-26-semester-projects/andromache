@@ -1,0 +1,30 @@
+**/*
+
+# kernel
+!src/**
+!include/**
+
+# utils
+!scripts/**
+!tools/**
+
+# cmake
+!CMakeLists.txt
+!i386-toolchain-elf.cmake
+!src/**/CMakeLists.txt
+
+# readme
+!docs/images/logo.png
+!README.md
+
+# build artifacts
+**/*.o
+**/*.obj
+**/*.a
+**/*.elf
+**/*.exe
+**/*.iso
+kernel_dump.txt
+**/CMakeCache.txt
+**/CMakeFiles/
+**/cmake_install.cmake
