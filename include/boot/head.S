@@ -3,7 +3,7 @@
 .set HEADER_LENGTH, 32
 .set CHECKSUM, -(MAGIC + PROTECTION_MODE + HEADER_LENGTH)
 
-.set VIRTUAL_BASE, $0xC0000000
+.set VIRTUAL_BASE, 0xC0000000
 
 .section .multiboot
 .balign 8
@@ -28,25 +28,25 @@ header_end:
 .global _start
 _start:
     movl $stack_top, %esp
-    subl VIRTUAL_BASE, %esp
+    subl $VIRTUAL_BASE, %esp
 
     movl $_init, %eax
-    subl VIRTUAL_BASE, %eax
+    subl $VIRTUAL_BASE, %eax
     call *%eax
 
     movl $early_kernel_main, %eax
-    subl VIRTUAL_BASE, %eax
+    subl $VIRTUAL_BASE, %eax
     call *%eax
 
     movl $boot_page_directory, %eax
-    subl VIRTUAL_BASE, %eax
+    subl $VIRTUAL_BASE, %eax
     movl %eax, %cr3
 
     movl %cr0, %eax
-    orl $0x80000000, %eax
+    orl $VIRTUAL_BASE, %eax
     movl %eax, %cr0
 
-    addl VIRTUAL_BASE, %esp
+    addl $VIRTUAL_BASE, %esp
     movl $kernel_main, %eax
     jmp *%eax
     cli

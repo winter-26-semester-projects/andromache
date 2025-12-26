@@ -1,4 +1,5 @@
 #include "boot/boot.h"
+#include "kernel/kernel.h"
 #include "tty/serial/serial.h"
 
 extern void _header_checksum;
@@ -49,6 +50,11 @@ void setup_page_tables()
 
                 pt[i] = (i * 4096) | 0x3;
         }
+
+	uint32_t vga_phys = 0xb8000;
+	uint32_t vga_virt = (uint32_t)phys_to_virt(0xb8000);
+
+	pt[vga_phys >> 12] = vga_phys | 0x3;
 }
 
 int early_kernel_init(struct start *hdr)
