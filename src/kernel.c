@@ -3,7 +3,7 @@
 
 void kernel_main(void) 
 {
-    volatile unsigned short* vga_buffer = (unsigned short*)LOGICAL(0xB8000);
+    volatile unsigned short* vga_buffer = (unsigned short*)phys_to_virt(0xB8000);
 
     for (int i = 0; i < 80 * 25; i++) {
         vga_buffer[i] = (0x07 << 8) | ' ';
