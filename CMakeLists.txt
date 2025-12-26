@@ -31,7 +31,6 @@ add_library(kernel_objs OBJECT
     include/tty/serial/serial.c
     include/boot.c
     src/kernel.c
-    src/init_task.c
 )
 
 target_include_directories(kernel_objs PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
