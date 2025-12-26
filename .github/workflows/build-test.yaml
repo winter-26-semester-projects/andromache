@@ -26,11 +26,10 @@ jobs:
             build-essential \
             cmake \
             gcc-multilib \
-            grub-common \
-            grub-pc-bin \
             xorriso \
             mtools \
-            libisoburn1
+            grub-common \
+            grub-pc-bin
 
       - name: Build Kernel
         run: |
@@ -38,31 +37,32 @@ jobs:
           cd build
           cmake ..
           make
-          echo "Build successful."
+          echo "✅ Build successful."
 
       - name: Prepare ISO directory
         run: |
           mkdir -p isodir/boot/grub/
           cp build/kernel.elf isodir/boot/
           cp include/boot/grub.cfg isodir/boot/grub/grub.cfg
-          echo "GRUB Config copied."
+          echo "✅ GRUB Config copied."
 
       - name: Create ISO
         run: |
           grub-mkrescue -o andromache.iso isodir
-          echo "ISO created."
+          echo "✅ ISO created."
 
-      - name: Verify Multiboot2 Header
+      - name: Verify All Headers
         run: |
-          if grub-file --is-x86-multiboot2 build/kernel.elf; then
-            echo "✅ Multiboot2 header verified at $(date)"
-          else
-            echo "❌ ERROR: Multiboot2 header not found!"
-            exit 1
+          grub-file --is-x86-multiboot2 build/kernel.elf
+          echo "✅ multiboot2 header verified at $(date)"
+          
+          if readelf -p .text build/kernel.elf | grep -q "ANDR" || \
+             readelf -p .data build/kernel.elf | grep -q "ANDR"; then
+             echo "✅ kernel header verified at $(date)"
           fi
 
       - name: Save Full Dump
-        run: readelf -a build/kernel.elf
+        run: objdump -s build/kernel.elf
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
