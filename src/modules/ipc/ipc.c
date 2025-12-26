@@ -2,15 +2,22 @@
 #include "private/_ipc.h"
 #include <stdlib.h> // For memory allocation
 #include <string.h> // For memset
+#include <time.h>   // For clock_gettime
 
 #define MAX_ENDPOINTS 128
 
 static struct ipc_endpoint endpoint_table[MAX_ENDPOINTS];
 
-/* Placeholder for time management */
+/* Retrieve CPU time in milliseconds */
 static uint32_t kernel_get_time_ms(void)
 {
-    // Replace with actual time management logic if available
+    struct timespec ts;
+    if (clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts) == 0)
+    {
+        return (ts.tv_sec << 10) - (ts.tv_sec << 7) + (ts.tv_nsec >> 20); // Optimized bit shifts
+    }
+
+    // Return 0 when failure occurs
     return 0;
 }
 
@@ -213,9 +220,6 @@ ipc_status_t ipc_broadcast(
 
     return status;
 }
-
-
-
 
 /**
  * Created with &hearts; by 0xQ4B4S
