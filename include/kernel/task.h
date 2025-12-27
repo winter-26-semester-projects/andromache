@@ -7,8 +7,7 @@
 /**
  * I shall henceforth, forward-declare a great many declarations...
  * */
-
-enum pd_state;
+enum pd_state {_=0,};
 struct mm_struct;
 
 struct task_struct {
