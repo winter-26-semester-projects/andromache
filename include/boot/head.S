@@ -4,6 +4,7 @@
 .set CHECKSUM, -(MAGIC + PROTECTION_MODE + HEADER_LENGTH)
 
 .set VIRTUAL_BASE, 0xC0000000
+.set CR0_PG, 0X80000000
 
 .section .multiboot
 .balign 8
@@ -43,16 +44,21 @@ _start:
     movl %eax, %cr3
 
     movl %cr0, %eax
-    orl $VIRTUAL_BASE, %eax
+    orl $CR0_PG, %eax
     movl %eax, %cr0
-
-    addl $VIRTUAL_BASE, %esp
-    movl $kernel_main, %eax
+    
+    movl $1f, %eax
     jmp *%eax
+
+1:
+    addl $VIRTUAL_BASE, %esp
+    
+    call kernel_main
+    
     cli
-.1:
+2:
     hlt
-    jmp .1
+    jmp 2b
 
 .section .bss
 .balign 16
