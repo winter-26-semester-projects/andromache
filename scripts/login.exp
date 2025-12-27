@@ -1,0 +1,10 @@
+#!/usr/bin/expect
+
+set user [lindex $argv 0]
+set host [lindex $argv 1]
+set port [lindex $argv 2]
+set password [lindex $argv 3]
+
+eval spawn ssh -tt $user@$host -p $port -o StrictHostKeyChecking=no
+
+send "debian\r"
