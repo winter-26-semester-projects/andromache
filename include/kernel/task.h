@@ -1,6 +1,6 @@
 #ifndef _KERNEL_TASK_H
 #define _KERNEL_TASK_H
-#include <linux/list.h>
+#include "list.h"
 
 void task_init(void);
 
@@ -21,6 +21,10 @@ struct cpu_context
     void *pc;
 };
 
+typedef struct list_head
+{
+} list_head_t;
+
 struct task_struct
 {
     /*Basic standard task structure*/
@@ -28,13 +32,13 @@ struct task_struct
     task_state_t state;
     struct cpu_context context; // placeholder for cpu context for future implementation
 
-    /*Actuall sched algos related metadata*/
+    /*Actual sched algos related metadata*/
     int priority;
     int time_slice;
     int remaining_time;
     int burst_time;
 
-    struct list_head ready_queue;
+    list_head_t run_list;
 } task_t;
 
 #endif /* _KERNEL_TASK_h */
