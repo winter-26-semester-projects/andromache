@@ -6,7 +6,7 @@ Andromache is cross-hyrbid between an exokernel and a monolithic kernel design, 
 
 ## Build
 
-You may run the bash script in `/scripts/build.sh`, but they require certain dependencies, and the `i386-gcc-elf` compiler, or the clang equivalent.
+You may run the bash script in `/scripts/build.sh`, but they require certain dependencies, and the `i386-gcc-elf` compiler, or the clang/LLVM equivalent.
 
 The dependencies are:
 
