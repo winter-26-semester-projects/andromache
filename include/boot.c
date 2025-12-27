@@ -66,13 +66,14 @@ void early_kernel_main()
                 serial_write(UART_PORT_COM1, ok);
         }
 
-//	if (hdr->cmdline & 0x1) {
-//		
-//		tty_init();
-//
-//		tty_writeline(ok);
-//	}
+#ifdef _TTY_TTY0_H
+	if (hdr->cmdline & 0x1) {
+		
+		tty_init();
 
+		tty_writeline(ok);
+	}
+#endif
         setup_page_tables();
 }
 
