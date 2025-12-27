@@ -3,5 +3,20 @@
 
 void task_init(void);
 
-#endif /* _KERNEL_TASK_h */
+typedef enum
+{
+    RUNNING,
+    READY,
+    BLOCKED,
+    TERMINATED
+} task_state_t;
 
+struct cpu_context
+{
+    /*
+    This function basically acts as a place holder for context switching until further implementation
+    */
+    void *sp;
+    void *pc;
+};
+#endif /* _KERNEL_TASK_h */
