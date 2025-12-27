@@ -11,6 +11,6 @@ cd ..
 
 mkdir -p isodir/boot/grub/
 cp build/kernel.elf isodir/boot/
-cp include/boot/grub.cfg isodir/boot/grub/grub.cfg
+cp include/boot/grub/grub.cfg isodir/boot/grub/grub.cfg
 
 grub-mkrescue -o andromache.iso isodir
