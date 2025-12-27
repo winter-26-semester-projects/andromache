@@ -19,5 +19,10 @@ target_include_directories(${MODULE_LIB}
 )
 
 if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
-    target_compile_options(${MODULE_LIB} PRIVATE -Wall -Wextra -Wno-missing-field-initializers)
+    target_compile_options(${MODULE_LIB} PRIVATE
+    -ffreestanding
+    -fno-stack-protector
+    -fno-pic
+    -m32
+    )
 endif()

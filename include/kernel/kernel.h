@@ -2,6 +2,9 @@
 #define KERNEL_KERNEL_H
 
 #include <stdint.h>
+#include "boot/boot.h"
+
+#define phys_to_virt(addr) ((addr) + HEADER_OFFSET)
 
 void kernel_init(void);
 

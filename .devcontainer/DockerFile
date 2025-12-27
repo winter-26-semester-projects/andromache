@@ -1,0 +1,38 @@
+FROM debian:bookworm AS builder
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV SOURCE_DATE_EPOCH=1735689600 
+
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    cmake \
+    gcc-multilib \
+    xorriso \
+    mtools \
+    grub-common \
+    grub-pc-bin \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /andromache
+COPY . .
+
+RUN rm -rf build/ && mkdir build && \
+    cd build && \
+    cmake .. && \
+    make
+
+RUN mkdir -p isodir/boot/grub/ && \
+    cp build/kernel.elf isodir/boot/ && \
+    cp include/boot/grub.cfg isodir/boot/grub/grub.cfg
+
+RUN grub-mkrescue -o andromache.iso isodir
+
+RUN ADDRESS=$(nm build/kernel.elf | grep "header_t" | cut -d' ' -f1) && \
+    objdump -s build/kernel.elf > kernel_dump.txt && \
+    (readelf -p .text build/kernel.elf | grep "ANDR" || \
+     readelf -p .data build/kernel.elf | grep "ANDR" || \
+     (echo "❌ Verification Failed: Magic number not found in .text or .data" && exit 1))
+
+FROM scratch AS artifacts
+COPY --from=builder /andromache/andromache.iso /
+COPY --from=builder /andromache/kernel_dump.txt

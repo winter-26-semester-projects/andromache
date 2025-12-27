@@ -1,0 +1,155 @@
+\documentclass[12pt]{article}
+
+\usepackage{ragged2e,graphicx}
+\usepackage{newpxtext,newpxmath}
+\usepackage[hidelinks]{hyperref}
+\usepackage[pages=some]{background}
+\usepackage{fancyhdr}
+\usepackage[symbol]{footmisc}
+\usepackage{tikz-cd,tikz,pgfplots,svg,bibleref}
+\usepackage{indentfirst,setspace,fourier-orns,cancel,textcomp,lettrine,microtype,manfnt,relsize,fmtcount,etoolbox}
+\usepackage{amsmath,amssymb,amsthm,mathtools,physics,amsfonts,thmtools}
+\usepackage{pgfornament}
+
+\usepackage[a4paper,margin=1in]{geometry}
+
+\usepackage{listings}
+\usepackage{xcolor}
+
+\lstset{
+    language=[x86masm]Assembler,
+    basicstyle=\ttfamily\small,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=10pt,
+    backgroundcolor=\color{white},
+    showspaces=false,
+    showstringspaces=false,
+    frame=single,
+    keywordstyle=\color{blue},
+    commentstyle=\color{green!60!black},
+    stringstyle=\color{purple},
+}
+
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[C]{— {\thepage} —}
+\fancyhead[R]{}
+\fancyhead[L]{}
+\fancyfoot[C]{}
+\renewcommand{\headrulewidth}{0pt}
+
+\newcommand{\frontitle}[1]{
+\begin{center}
+    {\Huge #1} \\
+    \vspace{2em} 
+\end{center}
+}
+
+\newcommand{\myAbstract}[1]{
+\begin{quote}\bold{ABSTRACT}.\;\;{#1}\end{quote}
+\begin{center}
+\pgfornament[width=8cm]{88}
+\end{center}
+}
+
+\makeatletter
+\renewcommand\@makefntext[1]{%
+  \noindent
+  \hb@xt@1.8em{\hss\@makefnmark}#1%
+}
+\makeatother
+
+\renewcommand{\thefootnote}{\arabic{footnote}}
+\newcommand{\fullentry}[3]{
+\thispagestyle{empty}
+{\begin{center}
+\section*{\huge{#1}}
+\\ \vphantom{ } \\
+{\huge \\ CSE233 \\ \vphantom{ } \\ \Large Mahros M. El-Qabasy\footnotemark[1], Mostafa M. Bakr\footnotemark[2], Sherif M. Haredy\footnotemark[3], Youssef B. Kaiser\footnotemark[4]\\ \vphantom{ } \\ Galala University, Egypt \\ \vphantom{ } \\ Prof.\ Amr Hefny \\ \vphantom{ } \\ — \\ \vphantom{ } \\ \today}
+\end{center}}
+
+\vspace*{7em}
+\hspace*{1em}%
+\begin{minipage}{\linewidth}
+{
+I.D.:
+$^{1}$223106831\\
+I.D.:
+$^{2}$223100891\\
+I.D.:
+$^{3}$223107334\\
+I.D.:
+$^{4}$223102042
+}
+\end{minipage}
+\newpage
+\vphantom{ }\\\vspace{2em}
+\myAbstract{#2}
+\\ \vphantom{ } \\
+{#3}
+\newpage
+}
+
+\graphicspath{ {./} }
+
+\renewcommand{\refname}{}
+
+\begin{document}
+\thispagestyle{empty}
+{\frontitle{REPORT\hspace{0.5pt}.}}
+\fullentry{AndromacheOS:\\\vspace{1.5em}An Exo-Monolithic Kernel Hybrid Design with Modularity}{
+    
+}{
+    \renewcommand{\thefootnote}{$^\dagger$}
+    {\large \tableofcontents}
+    \newpage
+    \section{Introduction}
+    \section{Booting the Kernel}
+        {
+            \raggedleft
+            So God created mankind in his own image,\\
+            in the image of God he created them;\\
+            male and female he created them.\\\vspace{1em}
+            --- \bibleverse{Genesis}(1:27).\par
+        }
+        \vspace{1.5em}
+        \subsection{ELF Header}
+        \par We first have to create our own kernel image. The executable is in an ELF format; this means it has to follow that header format, along with a {\tt mutliboot2}-compliant header. This can be found in our {\tt include/boot/head.S} file.\\
+        \lstinputlisting{head.asm}\vspace{1.5em}
+        The following are the header contents:
+        \begin{enumerate}
+            \item {\tt MAGIC} encodes the ELF magic number.
+            \item  {\tt PROTECTION\_MODE} is ISA-specific, but for {\tt x86} it refers to the protection ring; the kernel runs in ring 0, and thus is set to 0.
+            \item {\tt HEADER\_LENGTH} is the header size in bytes.
+            \item {\tt CHECKSUM} is the sum of aforementioned variables (c.f. code above).
+        \end{enumerate}
+        The rest refers to flags, CPU information, and other miscellanea that are out of scope for this report.\\
+        \subsection{Kernel Header}
+        \par We define our own kernel header to check if the kernel was loaded onto memory correctly; if it was not, a ‘‘panic’’ occurs. The kernel header structure definition can be found in {\tt include/boot/boot.h}.\\
+        \lstinputlisting{boot.h}\vspace{1.5em}
+        It is important prior to describing the contents of the header that, we address the C11 attribute {\tt \_\_attribute\_\_((packed))}; but first, one has to understand what it means to access memory from the compiler’s point of view: if one wishes to ‘‘read’’ a variable from memory location $A$ that is stored as the type {\tt int}, they must first determine how many bytes it is; if they attempt to read from $A$ a size larger than {\tt int}, they might get appended ‘‘garbage’’ at the end of their returned value; if they likewise attempt to read a size smaller than {\tt int}, they might get less than what they asked for; this means, one has to know \emph{exactly} how large the size of a variable is, before they attempt to access its memory location\footnote{This does not happen in reality, as this would throw an exception if it were truly let to happen. The CPU (in {\tt x86} AMD ABI) simply stalls and ‘‘stitches’’ the data together.}. It should be relatively easy in a statically-typed language like C, one might think, but in reality, the C memory model says nothing about a specific size that compilers or systems have to conform to; in reality, the opposite is what takes place: the C language, and compilers adhere to the System ABI in the manner that it determines memory allocation. Now, lets assume that the compiler knows exactly what size it is, but unfortunately has to, for whatever reason, store 4 bytes in $A$ location; first, the location has to at least 4 bytes or more of memory; second if the location is {\tt 0x10000000} (for example), it is naturally aligned with that size, but if it is {\tt 0x10000001}, it is not evenly divisible by $4$ despite the location being ‘‘long enough’’; this is known an \textbf{unaligned memory access}.\\
+
+        The compiler is not all-knowning, but it knows that sometimes our structures are not always naturally aligned with a specific memory location, so it ‘‘pads’’ our structure by a number of bytes (sometimes bits) to resolve any potential unaligned memory accesses. The {\tt \_\_attribute\_\_((packed))} attribute overrides this, forcing the compiler to remove that padding.\\
+
+        The following are the kernel header contents:
+        \begin{enumerate}
+            \item {\tt magic} encodes the kernel’s magic number, which is ‘‘ANDR’’ encoded in ASCII characters.
+            \item {\tt kernel\_entry} is the physical location at which our {\tt kernel\_main} starts.
+            \item {\tt flags} is the tty flag for whether to enable a serial terminal or not. If {\tt 0x00000000}, then it is disabled, otherwise {\tt 0x00000001} disables it; the latter is the default.
+            \item {\tt checksum} is {\tt 0x414E4452 + kernel\_entry + 0x01}; it is used to verify the aforementioned.
+            \item {\tt hgh\_mem} defines the higher memory region into which the kernel switches post-boot, i.e., {\tt \%eip} jumps to that location, and the CPU starts executing that instruction; it is set to {\tt 0x1000}.
+            \item {\tt cmdline} is another flag which controls whether the tty is serial or not. It has a value of either {\tt 0} or {\tt 1}; it is set to {\tt 0} by default.
+        \end{enumerate}
+
+    \section{Process Control}
+    \section{Scheduler}
+    \section{Inter-Process Communication}
+    \section{Do not Panic Rule}
+    \section{Further Implementation Notes}
+    \section{References \& Contributions Table}
+}
+
+\end{document}
