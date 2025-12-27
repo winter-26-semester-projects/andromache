@@ -1,6 +1,6 @@
 #ifndef _KERNEL_SCHED_ALGOS_H_
 #define _KERNEL_SCHED_ALGOS_H_
-#include <kernel/task.h>
+#include "task.h"
 
 /*sched policies*/
 typedef enum
