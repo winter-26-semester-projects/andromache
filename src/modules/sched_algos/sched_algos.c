@@ -9,12 +9,21 @@ void sched_algos_init(void)
     INIT_LIST_HEAD(&ready_queue);
 }
 
+void wakeup_task(struct task_struct *task)
+{
+    task->state = READY;
+
+    sched_enqueue_task(task);
+}
+
 void sched_enqueue_task(struct task_struct *task)
 {
-    if (!task)
+    /**
+     * modify enqueue to actually check for task’s existing state
+     **/
+    if (!task || task->state != READY)
         return;
 
-    task->state = READY;
     list_add_tail(&task->run_list, &ready_queue);
 }
 
@@ -43,7 +52,7 @@ struct task_struct *sched_pick_next_task(sched_policy_t policy)
 }
 
 // check for any ready task
-int sched_has_ready_tasks(void)
+static inline int sched_has_ready_tasks(void)
 {
     return !list_empty(&ready_queue);
 }
