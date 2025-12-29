@@ -33,6 +33,10 @@ struct task_struct *sched_pick_next_task(sched_policy_t policy)
 {
     struct task_struct *task;
 
+    struct task_struct *task;
+    struct task_struct *iter;
+    struct task_struct *best;
+
     if (list_empty(&ready_queue))
         return NULL;
 
@@ -46,6 +50,50 @@ struct task_struct *sched_pick_next_task(sched_policy_t policy)
         list_del(&task->run_list);
         task->state = RUNNING;
         return task;
+    case RR:
+        task = list_first_entry(
+            &ready_queue,
+            struct task_struct,
+            run_list);
+
+        list_del(&task->run_list);
+        task->state = RUNNING;
+        return task;
+    case HPF:
+        /*start by assuming that the first task has the highest priority*/
+        best = list_first_entry(
+            &ready_queue,
+            struct task_struct,
+            run_list);
+
+        /*iterate and find the highest priority task*/
+        list_for_each_entry(iter, &ready_queue, run_list)
+        {
+            if (iter->priority > best->priority)
+            {
+                best = iter;
+            }
+            list_del(&best->run_list);
+            best->state = RUNNING;
+            return best;
+        }
+    case SDN:
+        /*start by assuming that the first task has the least burst time*/
+        best = list_first_entry(
+            &ready_queue,
+            struct task_struct,
+            run_list);
+        /*iterate and find the task with the least burst time*/
+        list_for_each_entry(iter, &ready_queue, run_list)
+        {
+            if (iter->burst_time < best->burst_time)
+            {
+                best = iter;
+            }
+            list_del(&best->run_list);
+            best->state = RUNNING;
+            return best;
+        }
     default:
         return NULL;
     }
