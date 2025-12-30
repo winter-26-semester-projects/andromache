@@ -58,6 +58,6 @@ void yield(void)
     {
         current->state = READY;
         sched_enqueue_task(current);
-        schedule();
     }
+    schedule();
 }
