@@ -67,7 +67,11 @@ void early_kernel_main()
         }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #ifdef _TTY_TTY0_H	
+=======
+#ifdef _TTY_TTY0_H
+>>>>>>> 09bcd267cd5c15384bcb0c1871c3e700763a0037
 =======
 #ifdef _TTY_TTY0_H
 >>>>>>> 09bcd267cd5c15384bcb0c1871c3e700763a0037
