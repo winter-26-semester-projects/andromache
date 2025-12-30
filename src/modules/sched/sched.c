@@ -50,3 +50,13 @@ void schedule(void)
         context_switch(current, next);
     }
 }
+
+/*voluntary yield*/
+void yield(void)
+{
+    if (current && current != &idle_task)
+    {
+        current->state = READY;
+        sched_enqueue_task(current);
+    }
+}
