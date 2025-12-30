@@ -14,3 +14,24 @@ void context_switch(struct task_struct *prev, struct task_struct *next)
 {
     current = next;
 }
+
+/*Idle task*/
+static void idle_task_func(void)
+{
+    for (;;)
+    {
+        __asm__ volatile(
+            "sti\n" /*added sti to make sure interrupts are enabled before halting to prevent deadlock*/
+            "hlt\n");
+    }
+}
+
+/*sched initializaiton*/
+void sched_init(void)
+{
+    sched_algos_init();
+    idle_task.pid = 0;
+    idle_task.state = RUNNING;
+    idle_task.entry = idle_task_func;
+    current = &idle_task;
+}
