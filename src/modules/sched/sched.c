@@ -35,3 +35,18 @@ void sched_init(void)
     idle_task.entry = idle_task_func;
     current = &idle_task;
 }
+
+/*main scheduler*/
+void schedule(void)
+{
+    struct task_struct *next;
+
+    next = sched_pick_next_task(curr_sched_policy);
+    if (!next)
+        next = &idle_task;
+
+    if (current != next)
+    {
+        context_switch(current, next);
+    }
+}
