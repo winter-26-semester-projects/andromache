@@ -1,21 +1,20 @@
-**/*
+*
 
 # kernel
-!src/**
-!include/**
+!src/
+!include/
+
+# dokcer
+!.devcontainer/
 
 # utils
-!scripts/**
-!tools/**
+!scripts/
+!tools/
 
 # cmake
-!CMakeLists.txt
-!i386-toolchain-elf.cmake
-!src/**/CMakeLists.txt
-
-# readme
-!docs/images/logo.png
-!README.md
+!/CMakeLists.txt
+!/i386-toolchain-elf.cmake
+!/README.md
 
 # build artifacts
 **/*.o
