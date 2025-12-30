@@ -2,6 +2,7 @@
 #define _PT_H_
 
 #include<stdint.h>
+#include<stdbool.h>
 #include "kernel/kernel.h"
 
 extern u8 LOGIC_BASE;
