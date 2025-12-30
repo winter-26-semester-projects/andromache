@@ -37,6 +37,7 @@ struct task_struct
     int time_slice;
     int remaining_time;
     int burst_time;
+    void (*entry)(void);
 
     list_head_t run_list;
 } task_t;
