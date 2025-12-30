@@ -4,9 +4,9 @@
 #include <stdint.h>
 #include "boot/boot.h"
 
-typedef uint32_t u32;
-typedef uint16_t u16;
-typedef uint8_t  u8;
+#define u32 uint32_t
+#define u16 uint16_t
+#define u8 uint8_t
 
 typedef u32 addr_t;
 

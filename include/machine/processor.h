@@ -9,23 +9,23 @@
 #define CR3_PCID_MASK 0
 #define CR3_NOFLUSH   0
 
+// ! to be declared...
+struct hw_tss;
+struct io_bitmap;
+
 struct task_frame {
 	u32 flags;
-
 	u32 si;
-
 	u32 di;
-
 	u32 bx;
-
 	u32 bp;	
 };
 
 struct tss_struct {
 
-	_Alignas(PAGE_SIZE) struct hw_tss tss;
+	_Alignas(PAGE_SIZE) struct hw_tss* tss;
 
-	struct io_bitmap io_bitmap;
+	struct io_bitmap* io_bitmap;
 };
 
 struct __task_struct {
@@ -36,7 +36,7 @@ struct __task_struct {
 
 static inline void load_cr3(u32 pgdir_phys_addr)
 {
-	__asm__ volatile("movl %0, %%cr3
+	__asm__ volatile("movl %0, %%cr3"
 			: : "r" (pgdir_phys_addr) : "memory"
 			);
 }

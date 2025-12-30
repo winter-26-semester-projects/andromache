@@ -17,4 +17,4 @@ void tty_writeline(char*);
 void tty_clearline(void);
 void tty_putc_at(char, enum vga_color, uint32_t, uint32_t);
 
-#endif /* _TTY_TT0_H */
+#endif /* _TTY_TTY0_H */
