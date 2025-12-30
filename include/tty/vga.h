@@ -7,8 +7,8 @@
 #define VGA_PHYS_ADDR 0xb8000
 #define VGA_VIRT_BASE phys_to_virt(VGA_PHYS_ADDR)
 
-#define VGA_HEIGHT 80
-#define VGA_WIDTH 20
+#define VGA_WIDTH 80
+#define VGA_HEIGHT 20
 
 enum vga_color {
 
