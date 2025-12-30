@@ -66,7 +66,11 @@ void early_kernel_main()
                 serial_write(UART_PORT_COM1, ok);
         }
 
+<<<<<<< HEAD
 #ifdef _TTY_TTY0_H	
+=======
+#ifdef _TTY_TTY0_H
+>>>>>>> 09bcd267cd5c15384bcb0c1871c3e700763a0037
 	if (hdr->cmdline & 0x1) {
 		
 		tty_init();

@@ -9,14 +9,14 @@ set -e
 cd $base_dir &&
 source .env
 
-skip=1
+skip=0
 
 while [[ "$#" -gt 0 ]]; do
     case "$1" in
         -s|--shell)
                 shift 1
 
-                skip=0
+                skip=1
                 ssh -t -o StrictHostKeyChecking=no $VM_USER@$VM_HOST -p $VM_PORT
                 ;;
         *)

@@ -22,10 +22,15 @@ struct task_frame {
 };
 
 struct tss_struct {
+<<<<<<< HEAD
 
 	_Alignas(PAGE_SIZE) struct hw_tss* tss;
 
 	struct io_bitmap* io_bitmap;
+=======
+	_Alignas(PAGE_SIZE) struct hw_tss *tss;
+	struct io_bitmap *io_bitmap;
+>>>>>>> 09bcd267cd5c15384bcb0c1871c3e700763a0037
 };
 
 struct __task_struct {
