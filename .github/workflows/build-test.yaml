@@ -55,11 +55,6 @@ jobs:
         run: |
           grub-file --is-x86-multiboot2 build/kernel.elf
           echo "✅ multiboot2 header verified at $(date)"
-          
-          if readelf -p .text build/kernel.elf | grep -q "ANDR" || \
-             readelf -p .data build/kernel.elf | grep -q "ANDR"; then
-             echo "✅ kernel header verified at $(date)"
-          fi
 
       - name: Save Full Dump
         run: objdump -s build/kernel.elf
