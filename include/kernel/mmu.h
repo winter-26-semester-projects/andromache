@@ -13,7 +13,7 @@
 #define CS_IDX_B 3
 #define CS_RPL_W 2
 #define CS_TI_W  1
-#define CS_IDX_W 0X0d
+#define CS_IDX_W 0x0d
 
 #define BIT_MASK(W) ((1UL << (W)) - 1)
 
@@ -22,7 +22,6 @@
 
 #define BIT_PACK32(n, W, B, k) \
 	((u32)((n) & ~(BIT_MASK(W) << (B))) | ((k) << (B)))
-
 
 typedef u16 kcs_t;
 typedef u16 cs_t;
