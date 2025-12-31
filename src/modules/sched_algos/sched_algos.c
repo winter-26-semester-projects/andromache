@@ -1,6 +1,7 @@
 #include "../../../include/kernel/sched_algos.h"
 #include "private/_sched_algos.h"
 #include <stddef.h>
+#include "/home/debian/andromache/andromache/include/kernel/list.h"
 
 struct list_head ready_queue;
 
@@ -29,74 +30,64 @@ void sched_enqueue_task(struct task_struct *task)
 
 // FCFS implementation
 
-struct task_struct *sched_pick_next_task(sched_policy_t policy)
+struct task_struct *sched_pick_next_task(void)
 {
-    struct task_struct *task;
+    struct task_struct *task, *best = NULL;
 
     struct task_struct *task;
     struct task_struct *iter;
-    struct task_struct *best;
 
     if (list_empty(&ready_queue))
         return NULL;
 
-    switch (policy)
+    /*HPF*/
+    list_for_each_entry(task, &ready_queue, run_list)
     {
-    case FCFS:
-        task = list_first_entry(
-            &ready_queue,
-            struct task_struct,
-            run_list);
-        list_del(&task->run_list);
-        task->state = RUNNING;
-        return task;
-    case RR:
-        task = list_first_entry(
-            &ready_queue,
-            struct task_struct,
-            run_list);
-
-        list_del(&task->run_list);
-        task->state = RUNNING;
-        return task;
-    case HPF:
-        /*start by assuming that the first task has the highest priority*/
-        best = list_first_entry(
-            &ready_queue,
-            struct task_struct,
-            run_list);
-
-        /*iterate and find the highest priority task*/
-        list_for_each_entry(iter, &ready_queue, run_list)
+        if (task->policy == HPF)
         {
-            if (iter->priority > best->priority)
-            {
-                best = iter;
-            }
-            list_del(&best->run_list);
-            best->state = RUNNING;
-            return best;
+            if (!best || task->priority > best->priority)
+                best = task;
         }
-    case SDN:
-        /*start by assuming that the first task has the least burst time*/
-        best = list_first_entry(
-            &ready_queue,
-            struct task_struct,
-            run_list);
-        /*iterate and find the task with the least burst time*/
-        list_for_each_entry(iter, &ready_queue, run_list)
-        {
-            if (iter->burst_time < best->burst_time)
-            {
-                best = iter;
-            }
-            list_del(&best->run_list);
-            best->state = RUNNING;
-            return best;
-        }
-    default:
-        return NULL;
     }
+    if (best)
+        goto found;
+
+    /*RR*/
+    list_for_each_entry(task, &ready_queue, run_list)
+    {
+        if (task->policy == RR)
+        {
+            best = task;
+            goto found;
+        }
+    }
+
+    /*FCFS*/
+    list_for_each_entry(task, &ready_queue, run_list)
+    {
+        if (task->policy == FCFS)
+        {
+            best = task;
+            goto found;
+        }
+    }
+
+    /*SDN*/
+    list_for_each_entry(task, &ready_queue, run_list)
+    {
+        if (task->policy == SDN)
+        {
+            if (!best || task->remaining_time < best->remaining_time)
+                best = task;
+        }
+    }
+
+found:
+    if (!best)
+        return NULL;
+    list_del(&best->run_list);
+    best->state = RUNNING;
+    return best;
 }
 
 // check for any ready task
