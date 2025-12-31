@@ -23,7 +23,7 @@ void sched_enqueue_task(struct task_struct *task); // enqueue a task to the sche
 pick next task according to sched_policy_t,
 returns NULL if no task is ready
 */
-struct task_struct *sched_dequeue_task(sched_policy_t policy);
+struct task_struct *sched_pick_next_task(void);
 
 int sched_has_ready_tasks(void); // unecessary but to avoid peaking into internals (much cleaner)
 
