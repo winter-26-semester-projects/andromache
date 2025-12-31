@@ -33,13 +33,13 @@ add_library(kernel_objs OBJECT
     src/kernel.c
 )
 
-target_include_directories(kernel_objs PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_compile_options(kernel_objs PRIVATE -ffreestanding -fno-stack-protector -fno-pic -m32)
+target_include_directories(kernel_objs PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_compile_options(kernel_objs PUBLIC -ffreestanding -fno-stack-protector -fno-pic -m32)
 
 add_subdirectory(src/modules/ipc)
 
 add_executable(kernel.elf)
-target_compile_definitions(kernel.elf PRIVATE __is_kernel)
+target_compile_definitions(kernel.elf PUBLIC __is_kernel)
 
 target_link_options(kernel.elf PRIVATE
     -m32
