@@ -1,6 +1,7 @@
 #ifndef _KERNEL_TASK_H
 #define _KERNEL_TASK_H
 #include "list.h"
+#include "sched_algos.h"
 
 void task_init(void);
 
@@ -38,6 +39,7 @@ struct task_struct
     int remaining_time;
     int burst_time;
     void (*entry)(void);
+    sched_policy_t policy;
 
     list_head_t run_list;
 } task_t;
