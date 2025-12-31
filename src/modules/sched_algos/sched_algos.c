@@ -1,7 +1,7 @@
 #include "../../../include/kernel/sched_algos.h"
 #include "private/_sched_algos.h"
 #include <stddef.h>
-#include "/home/debian/andromache/andromache/include/kernel/list.h"
+#include <linux/list.h>
 
 struct list_head ready_queue;
 extern struct task_struct *current;

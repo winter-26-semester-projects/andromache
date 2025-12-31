@@ -33,7 +33,11 @@ add_library(kernel_objs OBJECT
     src/kernel.c
 )
 
-target_include_directories(kernel_objs PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(kernel_objs PRIVATE 
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/extern/linux/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/extern/linux/tools/include
+)
 target_compile_options(kernel_objs PRIVATE -ffreestanding -fno-stack-protector -fno-pic -m32)
 
 add_subdirectory(src/modules/ipc)
@@ -64,6 +68,12 @@ target_link_libraries(kernel.elf
 
 target_compile_options(ipc PRIVATE
     -ffreestanding -fno-stack-protector -fno-pic -fno-exceptions -fno-rtti -m32
+)
+
+target_include_directories(kernel.elf PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/extern/linux/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/extern/linux/tools/include
 )
 
 set_target_properties(kernel.elf PROPERTIES
