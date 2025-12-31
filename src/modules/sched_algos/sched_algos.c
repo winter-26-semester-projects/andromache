@@ -4,6 +4,8 @@
 #include "/home/debian/andromache/andromache/include/kernel/list.h"
 
 struct list_head ready_queue;
+extern struct task_struct *current;
+extern struct task_struct idle_task;
 
 void sched_algos_init(void)
 {
@@ -19,23 +21,36 @@ void wakeup_task(struct task_struct *task)
 
 void sched_enqueue_task(struct task_struct *task)
 {
-    /**
-     * modify enqueue to actually check for task’s existing state
-     **/
+    /*checking for task existing state*/
     if (!task || task->state != READY)
         return;
 
+    /*adding task to ready queue*/
     list_add_tail(&task->run_list, &ready_queue);
-}
 
-// FCFS implementation
+    /*HPF and SDN preemption check*/
+    if (!current || current == &idle_task)
+        return;
+
+    switch (task->policy)
+    {
+    case HPF:
+        if (current->policy != HPF || task->priority > current->priority)
+            yield(); /*next task policy isn't HPF || higher priority arrived*/
+        break;
+    case SDN:
+        if (current->policy != SDN || task->remaining_time < current->remaining_time)
+            yield(); /*next task policy isn't SDN || shorter remaining time arrived*/
+        break;
+
+    default:
+        break;
+    }
+}
 
 struct task_struct *sched_pick_next_task(void)
 {
     struct task_struct *task, *best = NULL;
-
-    struct task_struct *task;
-    struct task_struct *iter;
 
     if (list_empty(&ready_queue))
         return NULL;
