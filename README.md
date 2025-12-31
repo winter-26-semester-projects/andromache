@@ -31,6 +31,14 @@ bash -x scripts/build.sh
 ```sh
 qemu-systems-i386 -cdrom andromache.iso
 ```
+
+### Docker
+
+If you have Docker installed, you may run this command from `andromache/`:
+
+```sh
+docker buildx build -f .devcontainer/Dockerfile -t andromache-os . --load
+```
 ## Architecture
 
 The kernel may encapsulate all services and modules after it is loaded onto memory; as processes are forked, the kernel may eliminate all services, and push them into user space.

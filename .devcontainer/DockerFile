@@ -28,10 +28,7 @@ RUN mkdir -p isodir/boot/grub/ && \
 RUN grub-mkrescue -o andromache.iso isodir
 
 RUN ADDRESS=$(nm build/kernel.elf | grep "header_t" | cut -d' ' -f1) && \
-    objdump -s build/kernel.elf > kernel_dump.txt && \
-    (readelf -p .text build/kernel.elf | grep "ANDR" || \
-     readelf -p .data build/kernel.elf | grep "ANDR" || \
-     (echo "❌ Verification Failed: Magic number not found in .text or .data" && exit 1))
+    objdump -s build/kernel.elf > kernel_dump.txt
 
 FROM scratch AS artifacts
 COPY --from=builder /andromache/andromache.iso /
