@@ -1,17 +1,9 @@
 #ifndef _VGA_H
 #define _VGA_H
 
-#include "kernel/kernel.h"
-#include "machine/pt.h"
-
-#define VGA_PHYS_ADDR 0xb8000
-#define VGA_VIRT_BASE phys_to_virt(VGA_PHYS_ADDR)
-
-#define VGA_HEIGHT 80
-#define VGA_WIDTH 20
+#include "kernel/types.h"
 
 enum vga_color {
-
 	VGA_COLOR_BLACK 	= 0, 
 	VGA_COLOR_BLUE		= 1,
 	VGA_COLOR_GREEN		= 2,
@@ -28,7 +20,6 @@ enum vga_color {
 	VGA_COLOR_LIGHT_MAGENTA = 13,
 	VGA_COLOR_LIGHT_BROWN	= 14,
 	VGA_COLOR_WHITE		= 15,
-
 };
 
 static inline u8 vga_entry_color(enum vga_color fg, enum vga_color bg)

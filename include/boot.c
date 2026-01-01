@@ -1,12 +1,10 @@
 #include "boot/boot.h"
-#include "kernel/kernel.h"
+#include "kernel/types.h"
 #include "tty/serial/serial.h"
-#include "machine/pt.c"
-
-extern void _header_checksum;
+#include "mm/pt.c"
 
 extern void kernel_main(void);
-
+  
 struct start header_t = {
         /**
         * kernel header:

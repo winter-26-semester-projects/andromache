@@ -1,7 +1,6 @@
 #ifndef _IRQFLAGS_H_
 #define _IRQFLAGS_H_
 
-#include<stdint.h>
 #include "barrier.h"
 
 static inline void enable(void) 

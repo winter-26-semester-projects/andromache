@@ -1,6 +1,4 @@
-#include<stdint.h>
-
-#include "kernel/kernel.h"
+#include "kernel/types.h"
 #include "pt.h"
 #include "tty/vga.h"
 

@@ -1,30 +1,8 @@
-#ifndef MMU_MMU_H
-#define MMU_MMU_H
+#ifndef MM_MMU_H
+#define MM_MMU_H
 
-#include<stdint.h>
 #include<stdbool.h>
-#include "kernel/kernel.h"
-#include "machine/pt.h"
-
-#define mmu_flags_t u32
-
-#define CS_RPL_B 0
-#define CS_TI_B  2
-#define CS_IDX_B 3
-#define CS_RPL_W 2
-#define CS_TI_W  1
-#define CS_IDX_W 0x0d
-
-#define BIT_MASK(W) ((1UL << (W)) - 1)
-
-#define BIT_PACK16(n, W, B, k) \
-	((u16)((n) & ~(BIT_MASK(W) << (B))) | ((k) << (B)))
-
-#define BIT_PACK32(n, W, B, k) \
-	((u32)((n) & ~(BIT_MASK(W) << (B))) | ((k) << (B)))
-
-typedef u16 kcs_t;
-typedef u16 cs_t;
+#include "kernel/types.h"
 
 static inline kcs_t kcs(u16 idx)
 {
@@ -92,4 +70,4 @@ enum mmu_err {
 
 enum mmu_err mmu_map(uintptr_t virt, uintptr_t phys, mmu_flags_t flags);
 
-#endif /* MMU_MMU_H */
+#endif /* MM_MMU_H */

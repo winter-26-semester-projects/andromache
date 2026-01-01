@@ -1,8 +1,6 @@
 #ifndef _BARRIER_H_
 #define _BARRIER_H_
 
-#include<stdint.h>
-
 static inline void barrier(void)
 {
 	__asm__ volatile("" : : : "memory");

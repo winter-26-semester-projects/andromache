@@ -1,17 +1,8 @@
 #ifndef _PROCESSOR_H_
 #define _PROCESSOR_H_
 
-#include<stdint.h>
-#include "kernel/kernel.h"
-#include "pt.h"
-
-#define CR3_ADDR_MASK 0xffffffffU
-#define CR3_PCID_MASK 0
-#define CR3_NOFLUSH   0
-
-// ! to be declared...
-struct hw_tss;
-struct io_bitmap;
+#include "kernel/types.h"
+#include "gdt.h"
 
 struct task_frame {
 	u32 flags;
@@ -22,9 +13,9 @@ struct task_frame {
 };
 
 struct tss_struct {
-	_Alignas(PAGE_SIZE) struct hw_tss* tss;
-	struct io_bitmap* io_bitmap;
-};
+	_Alignas(PAGE_SIZE) struct tss hw;
+	u32 io_bitmap[2048];
+} __packed __aligned(PAGE_SIZE);
 
 struct __task_struct {
 	u32 sp;
@@ -37,6 +28,11 @@ static inline void load_cr3(u32 pgdir_phys_addr)
 	__asm__ volatile("movl %0, %%cr3"
 			: : "r" (pgdir_phys_addr) : "memory"
 			);
+}
+
+static inline void update_tss_stack(struct tss_struct *tss, u32 kstack)
+{
+	WRITE_ONCE(tss->hw.esp0, kstack);
 }
 
 #endif /* _PROCESSOR_H_ */

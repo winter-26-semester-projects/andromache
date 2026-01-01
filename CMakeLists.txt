@@ -30,8 +30,11 @@ add_library(kernel_objs OBJECT
     include/boot/head.S
     include/tty/serial/serial.c
     include/boot.c
+    include/machine/gdt.c
     src/kernel.c
 )
+
+target_compile_definitions(kernel_objs PUBLIC __is_kernel)
 
 target_include_directories(kernel_objs PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_compile_options(kernel_objs PUBLIC -ffreestanding -fno-stack-protector -fno-pic -m32)
@@ -61,6 +64,8 @@ target_link_libraries(kernel.elf
         "${CRTEND_PATH}"
         "$<TARGET_OBJECTS:crt_n>"
 )
+
+target_compile_definitions(ipc PRIVATE __is_kernel)
 
 target_compile_options(ipc PRIVATE
     -ffreestanding -fno-stack-protector -fno-pic -fno-exceptions -fno-rtti -m32

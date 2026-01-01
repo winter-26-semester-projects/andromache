@@ -1,6 +1,24 @@
+#include "kernel/types.h"
 #include "kernel/kernel.h"
-#include "kernel/ipc.h"
+#include "kernel/task.h"
+#include "compiler.h"
+#include "machine/processor.h"
+#include "machine/gdt.h"
 #include "config.h"
+#include "mm/mmu.h"
+
+struct tss_struct ktss = {0};
+
+void task_init(void)
+{	
+	gdt_init();
+
+	set_tss_desc(&gdt[5], &ktss.hw);
+
+	ktss.hw.ss0 = kcs(2);
+
+	load_tr(kcs(5));
+}
 
 void kernel_main(void) 
 {
@@ -14,8 +32,8 @@ void kernel_main(void)
 	for (int i = 0; str[i] != '\0'; i++) {
 		vga_buffer[i] = (0x0F << 8) | str[i];
 	}
-
-//	ipc_init();
+	
+	task_init();
 
 	for (;;) {
 		__asm__ volatile ("hlt");

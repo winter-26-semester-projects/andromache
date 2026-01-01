@@ -63,8 +63,10 @@
 typedef u32 addr_t;
 typedef u16 kcs_t;
 typedef u16 cs_t;
-typedef u32 pid_t;
-
+// this is muting errors again
+//#ifndef __pid_t
+//typedef u32 pid_t;
+//#endif
 // linker vars
 #ifdef __is_kernel
 extern u8 LOGIC_BASE;
